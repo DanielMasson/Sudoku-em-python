@@ -1,5 +1,6 @@
 import random
 from copy import deepcopy
+
 def tabuleiro_vazio():
     tabuleiro = [[0 for _ in range(9)]for _ in range(9)]
     return tabuleiro
@@ -80,12 +81,13 @@ def printar(tabuleiro):
 def gerar_jogo(dificuldade):
     solucao = tabuleiro_completo()
     puzzle = deepcopy(solucao)
-    if dificuldade.lower() == 'facil':
+    if dificuldade == 1:
         removidos = 35
-    elif dificuldade.lower() == 'medio':
+    elif dificuldade == 2:
         removidos = 45
-    elif dificuldade.lower() == 'dificil':
+    elif dificuldade == 3:
         removidos = 55
+    #Se colocar fora de 1 - 3 interpreta que é para teste e remove apenas 5
     else:
         removidos = 5
     
@@ -101,12 +103,11 @@ def gerar_jogo(dificuldade):
 
 def jogo():
     print(f'{"="*10} MENU {"="*10}')
-    print("Dificuldades: Fácil(35 casas em branco); Média(45 casas em branco); Díficil(55 casas em branco)")
-    escolha = str(input("Dificuldade escolhida (Sem acentos por favor): "))
+    print("Dificuldades: [1] Fácil(35 casas em branco); [2] Média(45 casas em branco); [3] Díficil(55 casas em branco)")
+    escolha = int(input("Dificuldade escolhida: ")) #se não for numerico da erro
     jogo, certo = gerar_jogo(escolha)
     printar(jogo)
     print("Digite a posição a ser prenchida e o numero a ser inserido (posições de 1 a 9)")
-    printar(certo)
     while jogo != certo:
         l = int(input("Linha: "))-1
         c = int(input("Coluna: "))-1
@@ -115,12 +116,14 @@ def jogo():
             if certo[l][c] == num:
                 jogo[l][c] = num
             else:
-                if jogo[l][c] != 0:
+                if jogo[l][c] == 0:
                     print("Número Errado!!")
                 else:
                     print("Posição já prenchida")
         else:
             print("Posição Inexistente!")
         printar(jogo)
+    print("Vitoria!!!")
 jogo()
+
         
