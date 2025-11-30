@@ -56,14 +56,17 @@ class Tabuleiro:
         return False
 
 
-    def tabuleiro_completo(self):
-        self.tabuleiro = self.tabuleiro_vazio()
-        self.prencher()
+    def gerar_tabuleiro_completo(self):
+        self.tabuleiro = self._tabuleiro_vazio()
+        self._prencher()
         return self.tabuleiro
 
     def gerar_jogo(self, dificuldade):
         solucao = self.tabuleiro_completo()
         puzzle = deepcopy(solucao)
+
+        #Dificuldades
+
         if dificuldade == 1:
             removidos = 35
         elif dificuldade == 2:
@@ -72,10 +75,12 @@ class Tabuleiro:
             removidos = 55
         else:
             removidos = 5
+            
         while removidos > 0:
             l = randint(0, 8)
             c = randint(0, 8)
             if puzzle[l][c] != 0:
                 puzzle[l][c] = 0
                 removidos -= 1
+
         return puzzle, solucao
