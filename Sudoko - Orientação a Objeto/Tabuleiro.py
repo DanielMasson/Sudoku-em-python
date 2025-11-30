@@ -38,7 +38,7 @@ class Tabuleiro:
     #Sudoku geração
 
     def _preencher(self):
-        posicao = self._achar_vazio()
+        posicao = self.achar_vazio()
         if posicao is None:
             return True  # tabuleiro cheio
 
