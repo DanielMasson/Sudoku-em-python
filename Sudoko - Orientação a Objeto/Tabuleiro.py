@@ -3,9 +3,11 @@ from copy import deepcopy
 
 class Tabuleiro:
     def __init__(self):
-        self.tabuleiro = self.tabuleiro_vazio()
+        self.tabuleiro = self._tabuleiro_vazio()
 
-    def tabuleiro_vazio(self):
+    #Métodos internos
+
+    def _tabuleiro_vazio(self):
         return [[0 for _ in range(9)] for _ in range(9)]
 
     def achar_vazio(self):
@@ -15,35 +17,44 @@ class Tabuleiro:
                     return l, c
         return None
 
-    def valido(self, linha, coluna, num):
+    def _valido(self, linha, coluna, num):
+        # checa linha
         for c in range(9):
             if self.tabuleiro[linha][c] == num:
                 return False
+        # checa coluna
         for l in range(9):
             if self.tabuleiro[l][coluna] == num:
                 return False
-        bl = linha // 3 * 3
-        bc = coluna // 3 * 3
+        # checa bloco 3x3
+        bl = (linha // 3) * 3
+        bc = (coluna // 3) * 3
         for l in range(bl, bl + 3):
             for c in range(bc, bc + 3):
                 if self.tabuleiro[l][c] == num:
                     return False
         return True
 
-    def prencher(self):
-        posicao = self.achar_vazio()
+    #Sudoku geração
+
+    def _preencher(self):
+        posicao = self._achar_vazio()
         if posicao is None:
-            return True
+            return True  # tabuleiro cheio
+
         l, c = posicao
-        validos = list(range(1, 10))
-        shuffle(validos)
-        for num in validos:
-            if self.valido(l, c, num):
+        numeros = list(range(1, 10))
+        shuffle(numeros)
+
+        for num in numeros:
+            if self._valido(l, c, num):
                 self.tabuleiro[l][c] = num
-                if self.prencher():
+                if self._preencher():
                     return True
                 self.tabuleiro[l][c] = 0
+
         return False
+
 
     def tabuleiro_completo(self):
         self.tabuleiro = self.tabuleiro_vazio()
