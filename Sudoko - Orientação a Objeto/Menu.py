@@ -13,7 +13,7 @@ class Menu:
     def printar(self, tabuleiro):
         for l in range(9):
             if l % 3 == 0:
-                print("+======+======+======+")
+                print("+=======+=======+=======+")
             linha_formatada = ''
             for c in range(9):
                 if c % 3 == 0:
@@ -25,7 +25,7 @@ class Menu:
                     linha_formatada += str(num) + ' '
             linha_formatada += '|'
             print(linha_formatada)
-        print("+======+======+======+")
+        print("+=======+=======+=======+")
 
     def jogar(self):
         print(f'{"="*10} MENU {"="*10}')
@@ -61,7 +61,7 @@ class Menu:
             num_str = input("Número escolhido: ").strip()
 
             #Verificação
-            if not (l.isdigit() and c.isdigit() and num.isdigit()):
+            if not (linha_str.isdigit() and coluna_str.isdigit() and num_str.isdigit()):
                 print("Valores inválidos, digite apenas números.")
                 continue
 
