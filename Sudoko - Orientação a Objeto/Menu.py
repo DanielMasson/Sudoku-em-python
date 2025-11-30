@@ -53,11 +53,17 @@ class Menu:
         self.printar(jogo)
 
         print("Digite a posição a ser prenchida e o número a ser inserido (posições de 1 a 9)")
-        
+
         while jogo != certo:
             l = int(input("Linha: ")) - 1
             c = int(input("Coluna: ")) - 1
             num = int(input("Número escolhido: "))
+
+            #Verificação
+            if not (l.isdigit() and c.isdigit() and num.isdigit()):
+                print("Valores inválidos, digite apenas números.")
+                continue
+
             if 0 <= l < 9 and 0 <= c < 9:
                 if certo[l][c] == num:
                     jogo[l][c] = num
@@ -68,7 +74,9 @@ class Menu:
                         print("Posição já prenchida")
             else:
                 print("Posição Inexistente!")
+
             self.printar(jogo)
+
         print("Vitória!!!")
 
     def sair(self):
@@ -79,7 +87,9 @@ class Menu:
             print("\nMenu:")
             print("1 - Jogar")
             print("2 - Sair")
+            
             escolha = input("Escolha uma opção: ")
+
             acao = self.opcoes.get(escolha)
             if acao:
                 acao()
