@@ -34,7 +34,7 @@ class Menu:
         print("[2] Média  (45 casas vazias)")
         print("[3] Difícil (55 casas vazias)")
 
-        escolha = int(input("Dificuldade escolhida: "))
+        escolha = input("Dificuldade escolhida: ")
 
         #garante que foi escolhido uma casa válida 
         if not escolha.isdigit():
@@ -47,8 +47,10 @@ class Menu:
             print("Escolha inválida!")
             return
         
+        dificuldade = int(escolha)
+        
         # usa o objeto de Tabuleiro guardado em self.tabuleiro_obj
-        jogo, certo = self.tabuleiro_obj.gerar_jogo(escolha)
+        jogo, certo = self.tabuleiro_obj.gerar_jogo(dificuldade)
 
         self.printar(jogo)
 
@@ -87,7 +89,7 @@ class Menu:
             print("\nMenu:")
             print("1 - Jogar")
             print("2 - Sair")
-            
+
             escolha = input("Escolha uma opção: ")
 
             acao = self.opcoes.get(escolha)
