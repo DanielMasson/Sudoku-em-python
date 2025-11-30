@@ -17,7 +17,7 @@ class Menu:
             linha_formatada = ''
             for c in range(9):
                 if c % 3 == 0:
-                    linha_formatada += '|'
+                    linha_formatada += '| '
                 num = tabuleiro[l][c]
                 if num == 0:
                     linha_formatada += '. '
@@ -29,7 +29,10 @@ class Menu:
 
     def jogar(self):
         print(f'{"="*10} MENU {"="*10}')
-        print("Dificuldades: [1] Fácil(35 casas em branco); [2] Média(45 casas em branco); [3] Difícil(55 casas em branco)")
+        print("Dificuldades:")
+        print("[1] Fácil  (35 casas vazias)")
+        print("[2] Média  (45 casas vazias)")
+        print("[3] Difícil (55 casas vazias)")
         escolha = int(input("Dificuldade escolhida: "))
         # usa o objeto de Tabuleiro guardado em self.tabuleiro_obj
         jogo, certo = self.tabuleiro_obj.gerar_jogo(escolha)
