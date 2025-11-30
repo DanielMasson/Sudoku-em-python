@@ -34,37 +34,40 @@ class Menu:
         print("[2] Média  (45 casas vazias)")
         print("[3] Difícil (55 casas vazias)")
 
-        escolha = input("Dificuldade escolhida: ")
+        escolha_str = input("Dificuldade escolhida: ").strip()
 
         #garante que foi escolhido uma casa válida 
-        if not escolha.isdigit():
+        if not escolha_str.isdigit():
             print("Valor inválido.")
             return
         
-        escolha = int(escolha)
+        escolha = int(escolha_str)
 
         if escolha not in [1, 2, 3]:
             print("Escolha inválida!")
             return
         
-        dificuldade = int(escolha)
         
         # usa o objeto de Tabuleiro guardado em self.tabuleiro_obj
-        jogo, certo = self.tabuleiro_obj.gerar_jogo(dificuldade)
+        jogo, certo = self.tabuleiro_obj.gerar_jogo(escolha)
 
         self.printar(jogo)
 
         print("Digite a posição a ser prenchida e o número a ser inserido (posições de 1 a 9)")
 
         while jogo != certo:
-            l = int(input("Linha: ")) - 1
-            c = int(input("Coluna: ")) - 1
-            num = int(input("Número escolhido: "))
+            linha_str = input("Linha: ").strip()
+            coluna_str = input("Coluna: ").strip()
+            num_str = input("Número escolhido: ").strip()
 
             #Verificação
             if not (l.isdigit() and c.isdigit() and num.isdigit()):
                 print("Valores inválidos, digite apenas números.")
                 continue
+
+            l = int(linha_str) - 1
+            c = int(coluna_str) - 1
+            num = int(num_str)
 
             if 0 <= l < 9 and 0 <= c < 9:
                 if certo[l][c] == num:
