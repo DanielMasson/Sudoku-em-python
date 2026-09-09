@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environmental Intelligence Center</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Turf.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    
+    <!-- Leaflet JS (CARREGAR PRIMEIRO) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Leaflet Draw JS -->
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="app-header">
+        <div class="header-left">
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="logo">
+                <svg viewBox="0 0 40 40" width="40" height="40">
+                    <circle cx="20" cy="20" r="18" fill="none" stroke="#00d4ff" stroke-width="2"/>
+                    <circle cx="20" cy="20" r="10" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
+                    <circle cx="20" cy="20" r="3" fill="#00d4ff"/>
+                    <path d="M20 2 L20 38 M2 20 L38 20" stroke="#00d4ff" stroke-width="0.5" opacity="0.3"/>
+                </svg>
+                <span class="logo-text">EIC</span>
+                <span class="logo-sub">Environmental Intelligence Center</span>
+            </div>
+            <span class="demo-badge">🔬 MODO DE DEMONSTRAÇÃO</span>
+        </div>
+        
+        <div class="header-center">
+            <div class="search-box">
+                <input type="text" id="globalSearch" placeholder="Pesquisar áreas, coordenadas, municípios...">
+                <button class="search-btn">🔍</button>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <button class="header-btn" id="newAreaBtn" title="Nova Área">
+                <span class="icon">+</span>
+                <span class="label">Nova Área</span>
+            </button>
+            <button class="header-btn" id="notificationsBtn" title="Notificações">
+                <span class="icon">🔔</span>
+                <span class="badge" id="notificationBadge">0</span>
+            </button>
+            <div class="user-profile">
+                <span class="user-avatar">👤</span>
+                <span class="user-name">Operador</span>
+                <span class="user-role">Sistema</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- CORPO PRINCIPAL -->
+    <div class="app-body">
+        <!-- SIDEBAR -->
+        <nav class="sidebar" id="sidebar">
+            <ul class="nav-menu">
+                <li class="nav-item active" data-view="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Dashboard</span>
+                </li>
+                <li class="nav-item" data-view="map">
+                    <span class="nav-icon">🗺️</span>
+                    <span class="nav-label">Mapa</span>
+                </li>
+                <li class="nav-item" data-view="areas">
+                    <span class="nav-icon">📍</span>
+                    <span class="nav-label">Áreas Monitoradas</span>
+                    <span class="nav-badge" id="areaCount">0</span>
+                </li>
+                <li class="nav-item" data-view="alerts">
+                    <span class="nav-icon">⚠️</span>
+                    <span class="nav-label">Alertas</span>
+                    <span class="nav-badge alert-count" id="alertCount">0</span>
+                </li>
+                <li class="nav-item" data-view="analysis">
+                    <span class="nav-icon">🔬</span>
+                    <span class="nav-label">Análises</span>
+                </li>
+                <li class="nav-item" data-view="history">
+                    <span class="nav-icon">📜</span>
+                    <span class="nav-label">Histórico</span>
+                </li>
+                <li class="nav-item" data-view="reports">
+                    <span class="nav-icon">📄</span>
+                    <span class="nav-label">Relatórios</span>
+                </li>
+                <li class="nav-item" data-view="settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-label">Configurações</span>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="status-dot online"></span>
+                    <span class="status-text">Sistema Operacional</span>
+                </div>
+                <div class="version-info">v1.0.0 - MVP</div>
+            </div>
+        </nav>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main-content">
+            <!-- VIEW: DASHBOARD -->
+            <section id="view-dashboard" class="view active">
+                <div class="dashboard-grid">
+                    <!-- Cards -->
+                    <div class="stat-card">
+                        <div class="stat-icon">📍</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalAreas">0</span>
+                            <span class="stat-label">Áreas Monitoradas</span>
+                        </div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="normalAreas">0</span>
+                            <span class="stat-label">Áreas Normais</span>
+                        </div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-icon">🔄</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="changedAreas">0</span>
+                            <span class="stat-label">Alterações Detectadas</span>
+                        </div>
+                    </div>
+                    <div class="stat-card danger">
+                        <div class="stat-icon">🔴</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="criticalAlerts">0</span>
+                            <span class="stat-label">Alertas Críticos</span>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos -->
+                    <div class="chart-card">
+                        <h3>Alterações por Período</h3>
+                        <canvas id="changesChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Distribuição por Tipo</h3>
+                        <canvas id="typeChart"></canvas>
+                    </div>
+                    <div class="chart-card full-width">
+                        <h3>Atividade Recente</h3>
+                        <div class="timeline" id="recentTimeline">
+                            <div class="timeline-empty">Nenhuma atividade registrada</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: MAPA -->
+            <section id="view-map" class="view">
+                <div class="map-container">
+                    <div id="mainMap"></div>
+                    <div class="map-controls">
+                        <div class="layers-control">
+                            <h4>CAMADAS</h4>
+                            <label><input type="checkbox" checked data-layer="base"> Mapa</label>
+                            <label><input type="checkbox" data-layer="satellite"> Satélite</label>
+                            <label><input type="checkbox" checked data-layer="areas"> Áreas monitoradas</label>
+                            <label><input type="checkbox" checked data-layer="alerts"> Alertas</label>
+                            <label><input type="checkbox" data-layer="changes"> Áreas alteradas</label>
+                        </div>
+                        <div class="coordinates-display" id="coordinatesDisplay">
+                            Lat: --, Lng: --
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: ÁREAS -->
+            <section id="view-areas" class="view">
+                <div class="panel-header">
+                    <h2>Áreas Monitoradas</h2>
+                    <button class="btn-primary" id="newAreaFromPanel">+ Nova Área</button>
+                </div>
+                <div class="areas-grid" id="areasGrid">
+                    <!-- Áreas serão renderizadas aqui -->
+                </div>
+            </section>
+
+            <!-- VIEW: ALERTAS -->
+            <section id="view-alerts" class="view">
+                <div class="panel-header">
+                    <h2>Centro de Alertas</h2>
+                    <div class="alert-filters">
+                        <button class="filter-btn active" data-filter="all">Todos</button>
+                        <button class="filter-btn" data-filter="critical">🔴 Críticos</button>
+                        <button class="filter-btn" data-filter="high">🟠 Altos</button>
+                        <button class="filter-btn" data-filter="medium">🟡 Médios</button>
+                        <button class="filter-btn" data-filter="normal">🟢 Normais</button>
+                    </div>
+                </div>
+                <div class="alerts-list" id="alertsList">
+                    <!-- Alertas serão renderizados aqui -->
+                </div>
+            </section>
+
+            <!-- VIEW: ANÁLISES -->
+            <section id="view-analysis" class="view">
+                <div class="panel-header">
+                    <h2>Análises</h2>
+                </div>
+                <div class="analysis-container">
+                    <div class="analysis-selector">
+                        <label>Selecione uma área para analisar:</label>
+                        <select id="analysisAreaSelect">
+                            <option value="">-- Selecione --</option>
+                        </select>
+                        <button class="btn-primary" id="runAnalysisBtn">🔍 Analisar Área</button>
+                    </div>
+                    <div class="analysis-result" id="analysisResult">
+                        <div class="analysis-placeholder">
+                            Selecione uma área e clique em "Analisar Área"
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: HISTÓRICO -->
+            <section id="view-history" class="view">
+                <div class="panel-header">
+                    <h2>Histórico de Análises</h2>
+                    <div class="history-filters">
+                        <select id="historyAreaFilter">
+                            <option value="all">Todas as áreas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="history-timeline" id="historyTimeline">
+                    <!-- Histórico será renderizado aqui -->
+                </div>
+            </section>
+
+            <!-- VIEW: RELATÓRIOS -->
+            <section id="view-reports" class="view">
+                <div class="panel-header">
+                    <h2>Relatórios</h2>
+                    <button class="btn-primary" id="generateReportBtn">📄 Gerar Relatório</button>
+                </div>
+                <div class="reports-list" id="reportsList">
+                    <div class="reports-empty">Nenhum relatório gerado</div>
+                </div>
+            </section>
+
+            <!-- VIEW: CONFIGURAÇÕES -->
+            <section id="view-settings" class="view">
+                <div class="panel-header">
+                    <h2>Configurações</h2>
+                </div>
+                <div class="settings-container">
+                    <div class="settings-section">
+                        <h3>Modo de Operação</h3>
+                        <div class="setting-item">
+                            <label>Modo atual:</label>
+                            <span class="setting-value demo-mode">DEMONSTRAÇÃO</span>
+                        </div>
+                        <div class="setting-item">
+                            <label>Fonte de dados:</label>
+                            <span class="setting-value">LocalStorage (Simulado)</span>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3>Integração Copernicus</h3>
+                        <div class="setting-item">
+                            <label>Status:</label>
+                            <span class="setting-value">Não configurado</span>
+                        </div>
+                        <div class="setting-item">
+                            <label>Endpoint:</label>
+                            <input type="text" placeholder="https://api.copernicus.eu/..." disabled>
+                        </div>
+                        <button class="btn-secondary" id="configureCopernicusBtn">Configurar Integração</button>
+                    </div>
+                    <div class="settings-section">
+                        <h3>Dados</h3>
+                        <div class="setting-item">
+                            <button class="btn-secondary" id="resetDataBtn">Resetar Dados de Demonstração</button>
+                        </div>
+                        <div class="setting-item">
+                            <button class="btn-secondary" id="exportDataBtn">Exportar Dados (GeoJSON)</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL: NOVA ÁREA -->
+    <div class="modal" id="areaModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nova Área Monitorada</h2>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Nome da Área</label>
+                    <input type="text" id="areaName" placeholder="Ex: Reserva Norte">
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea id="areaDescription" placeholder="Descrição da área..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <select id="areaCategory">
+                            <option value="preservacao">Área de Preservação</option>
+                            <option value="reserva">Reserva</option>
+                            <option value="floresta">Floresta</option>
+                            <option value="rural">Área Rural</option>
+                            <option value="risco">Área de Risco</option>
+                            <option value="denunciada">Área Denunciada</option>
+                            <option value="recuperacao">Área de Recuperação</option>
+                            <option value="pesquisa">Área de Pesquisa</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Prioridade</label>
+                        <select id="areaPriority">
+                            <option value="baixa">Baixa</option>
+                            <option value="media" selected>Média</option>
+                            <option value="alta">Alta</option>
+                            <option value="critica">Crítica</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="areaStatus">
+                            <option value="ativo">Ativo</option>
+                            <option value="pausado">Pausado</option>
+                            <option value="analise">Em Análise</option>
+                            <option value="encerrado">Encerrado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Frequência</label>
+                        <select id="areaFrequency">
+                            <option value="quando_nova">Quando houver nova imagem</option>
+                            <option value="diaria">Diária</option>
+                            <option value="3_dias">A cada 3 dias</option>
+                            <option value="semanal">Semanal</option>
+                            <option value="quinzenal">Quinzenal</option>
+                            <option value="mensal">Mensal</option>
+                            <option value="manual">Manual</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Responsável</label>
+                    <input type="text" id="areaResponsible" placeholder="Nome do responsável">
+                </div>
+                
+                <div class="geo-info">
+                    <h4>Informações Geográficas</h4>
+                    <div class="geo-grid">
+                        <div class="geo-item">
+                            <label>Área estimada:</label>
+                            <span id="geoArea">--</span>
+                        </div>
+                        <div class="geo-item">
+                            <label>Perímetro:</label>
+                            <span id="geoPerimeter">--</span>
+                        </div>
+                        <div class="geo-item">
+                            <label>Centroide (Lat):</label>
+                            <span id="geoCentroidLat">--</span>
+                        </div>
+                        <div class="geo-item">
+                            <label>Centroide (Lng):</label>
+                            <span id="geoCentroidLng">--</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="map-draw-container">
+                    <div id="drawMap"></div>
+                    <div class="draw-controls">
+                        <button class="btn-secondary" id="startDrawBtn">✏️ Desenhar Polígono</button>
+                        <button class="btn-secondary" id="clearDrawBtn">🗑️ Limpar</button>
+                        <span class="draw-status" id="drawStatus">Clique em "Desenhar Polígono" para começar</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelAreaBtn">Cancelar</button>
+                <button class="btn-primary" id="saveAreaBtn">💾 Salvar Área</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ALERTA DETALHADO -->
+    <div class="modal" id="alertModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Detalhes do Alerta</h2>
+                <button class="modal-close" id="alertModalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="alertDetailBody">
+                <!-- Conteúdo dinâmico -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: RELATÓRIO -->
+    <div class="modal modal-large" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Relatório de Alteração Ambiental</h2>
+                <button class="modal-close" id="reportModalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="reportBody">
+                <!-- Conteúdo dinâmico -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="printReportBtn">🖨️ Imprimir</button>
+                <button class="btn-secondary" id="exportReportBtn">📥 Exportar</button>
+                <button class="btn-secondary" id="closeReportBtn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICAÇÕES -->
+    <div class="notifications-container" id="notificationsContainer">
+        <!-- Notificações dinâmicas -->
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCRIPTS - ORDEM CORRETA DE CARREGAMENTO -->
+    <!-- ============================================================ -->
+    
+    <!-- 1. CONFIGURAÇÃO -->
+<!-- ============================================================ -->
+<!-- SCRIPTS - ORDEM CORRETA DE CARREGAMENTO -->
+<!-- ============================================================ -->
+
+<!-- ============================================================ -->
+<!-- SCRIPTS - ORDEM CORRETA DE CARREGAMENTO -->
+<!-- ============================================================ -->
+
+<!-- 1. CONFIGURAÇÃO -->
+<script src="js/config.js"></script>
+
+<!-- 2. SERVIÇOS -->
+<script src="js/services/StorageService.js"></script>
+<script src="js/services/ImageService.js"></script>
+<script src="js/services/AuditService.js"></script>
+<script src="js/services/AreaService.js"></script>
+<script src="js/services/AlertService.js"></script>
+<script src="js/services/SatelliteService.js"></script>
+<script src="js/services/AnalysisService.js"></script>
+<script src="js/services/ReportService.js"></script>
+<script src="js/services/MapService.js"></script>
+
+<!-- 3. UI -->
+<script src="js/ui/Dashboard.js"></script>
+<script src="js/ui/AreaPanel.js"></script>
+<script src="js/ui/AlertPanel.js"></script>
+<script src="js/ui/Timeline.js"></script>
+<script src="js/ui/ImageComparator.js"></script>
+
+<!-- 4. DADOS -->
+<script src="js/data/demoData.js"></script>
+
+<!-- 5. APLICAÇÃO -->
+<script src="js/app.js"></script>
+</body>
+</html>
